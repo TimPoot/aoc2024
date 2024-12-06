@@ -21,27 +21,30 @@ def is_instruction_good(pages: list[int]) -> bool:
             
 def fix_instruction(pages: list[int]) -> list[int]:
     pages_so_far: list[int] = []
-    altered_instruction: list[int] = []
 
-    for i, page in enumerate(pages):
-        if page in rule_dict:
-            if any(page_found in rule_dict[page] for page_found in pages_so_far):
+    for i in range(len(pages)):
+        if pages[i] in rule_dict:
+            if any(page_found in rule_dict[pages[i]] for page_found in pages_so_far):
                 # Logic here
-                altered_instruction = pages
+                new_index: int = 0
                 for j in range(1, i+1):
-                    altered_instruction[i-j], altered_instruction[i] = altered_instruction[i], altered_instruction[i-j]
-                    if is_instruction_good(altered_instruction):
-                        print('~~ HELLO ~~')
-                        print(page)
-                        return altered_instruction
+                    page_being_checked = pages[i-j]
+                    if page_being_checked in rule_dict and pages[i] in rule_dict[page_being_checked]:
+                        new_index = i-j+1
+                        break
 
-        pages_so_far += [page]
+                pages[i], pages[new_index] = pages[new_index], pages[i]
+                if is_instruction_good(pages):
+                    return pages
+                pages_so_far = []
+                i = 0
 
-    print(altered_instruction)
-    return []
+        pages_so_far += [pages[i]]
+
+    return fix_instruction(pages)
 
 good_sum = 0
-with open('input_example.txt', 'r') as input_file:
+with open('input.txt', 'r') as input_file:
     set_rules = True
     for line in input_file:
         if line == '\n':
